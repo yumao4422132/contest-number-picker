@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识竞赛选手号码抽取系统</title>
+    <meta name="theme-color" content="#0a0e27">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .top-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, transparent);
+            z-index: 2;
+        }
+        
+        .bottom-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, transparent);
+            z-index: 2;
+        }
+        
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1280px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .title {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 80px;
+            letter-spacing: 2px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .number-box {
+            display: inline-block;
+            padding: 60px 80px;
+            margin-bottom: 80px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+            border: 3px solid rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 0 80px rgba(59, 130, 246, 0.2);
+            position: relative;
+        }
+        
+        .number-display {
+            font-size: 200px;
+            font-weight: 900;
+            color: #f0ffff;
+            text-shadow: 
+                0 0 30px rgba(240, 255, 255, 0.3),
+                0 0 60px rgba(240, 255, 255, 0.2),
+                0 0 90px rgba(240, 255, 255, 0.1);
+            margin: 0;
+            font-family: 'Arial Black', 'Microsoft YaHei', sans-serif;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            line-height: 1;
+        }
+        
+        .number-display.completed {
+            color: #f0ffff;
+            text-shadow: 
+                0 0 30px rgba(240, 255, 255, 0.4),
+                0 0 60px rgba(240, 255, 255, 0.25),
+                0 0 90px rgba(240, 255, 255, 0.15);
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .button {
+            padding: 20px 60px;
+            font-size: 28px;
+            font-weight: 900;
+            color: white;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 15px 50px rgba(59, 130, 246, 0.5);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .button:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.7);
+        }
+        
+        .button:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .button.stop {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 15px 50px rgba(239, 68, 68, 0.5);
+        }
+        
+        .button.stop:hover:not(:disabled) {
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.7);
+        }
+        
+        .button.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 15px 50px rgba(16, 185, 129, 0.5);
+        }
+        
+        .button.completed:hover {
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.7);
+        }
+        
+        @media (max-width: 1024px) {
+            .title {
+                font-size: 32px;
+            }
+            .number-display {
+                font-size: 150px;
+            }
+            .number-box {
+                padding: 40px 60px;
+            }
+            .button {
+                padding: 15px 50px;
+                font-size: 24px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 24px;
+            }
+            .number-display {
+                font-size: 100px;
+            }
+            .number-box {
+                padding: 30px 40px;
+            }
+            .button {
+                padding: 12px 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-line"></div>
+    <div class="bottom-line"></div>
+    
+    <div class="container">
+        <h2 class="title">选手号码抽取</h2>
+        
+        <div class="number-box">
+            <div id="numberDisplay" class="number-display">00</div>
+        </div>
+        
+        <div class="button-container">
+            <button id="scrollBtn" class="button">开始滚动</button>
+            <button id="stopBtn" class="button stop" disabled>停止滚动</button>
+        </div>
+    </div>
+
+    <script>
+        // 定义选手号码数组
+        const numbers = [51, 24, 3, 70, 55, 48, 35, 11];
+        let currentIndex = -1;
+        let isScrolling = false;
+        let scrollInterval = null;
+
+        // 获取元素
+        const numberDisplay = document.getElementById('numberDisplay');
+        const scrollBtn = document.getElementById('scrollBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        // 开始滚动函数
+        function startScroll() {
+            if (isScrolling) return;
+            
+            // 检查是否已经完成所有抽取
+            if (currentIndex >= numbers.length - 1) {
+                alert('所有选手已抽取完毕！');
+                return;
+            }
+            
+            isScrolling = true;
+            currentIndex++;
+            
+            // 更新按钮状态
+            scrollBtn.textContent = '滚动中...';
+            scrollBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            // 开始滚动动画
+            scrollInterval = setInterval(() => {
+                // 生成随机数字
+                const randomNum = Math.floor(Math.random() * 100);
+                numberDisplay.textContent = randomNum.toString().padStart(2, '0');
+            }, 50); // 每50毫秒更新一次
+        }
+
+        // 停止滚动函数
+        function stopScroll() {
+            if (!isScrolling) return;
+            
+            // 清除滚动定时器
+            clearInterval(scrollInterval);
+            scrollInterval = null;
+            
+            // 显示当前应该显示的数字
+            const targetNumber = numbers[currentIndex];
+            numberDisplay.textContent = targetNumber.toString().padStart(2, '0');
+            
+            isScrolling = false;
+            
+            // 更新按钮状态
+            scrollBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            // 检查是否全部完成
+            if (currentIndex >= numbers.length - 1) {
+                scrollBtn.textContent = '全部完成';
+                scrollBtn.classList.add('completed');
+                numberDisplay.classList.add('completed');
+            } else {
+                scrollBtn.textContent = '下一个';
+            }
+        }
+
+        // 绑定按钮点击事件
+        scrollBtn.addEventListener('click', startScroll);
+        stopBtn.addEventListener('click', stopScroll);
+
+        // 初始化
+        function init() {
+            numberDisplay.textContent = '00';
+            numberDisplay.classList.remove('completed');
+            scrollBtn.textContent = '开始滚动';
+            scrollBtn.classList.remove('completed');
+            scrollBtn.disabled = false;
+            stopBtn.disabled = true;
+            currentIndex = -1;
+            isScrolling = false;
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+            }
+        }
+
+        // 页面加载时初始化
+        init();
+    </script>
+</body>
+</html>
